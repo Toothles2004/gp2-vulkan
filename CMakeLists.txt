@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project Name
-project(MyNewProject)
+project(MainProject)
 
 # Use C++20
 set(CMAKE_CXX_STANDARD 20)
