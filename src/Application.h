@@ -1,6 +1,7 @@
 #pragma once
 #include "Window.h"
 #include "Pipeline.h"
+#include "Device.h"
 
 namespace lve
 {
@@ -14,6 +15,13 @@ namespace lve
 
 	private:
 		Window m_Window{ m_WIDTH, m_HEIGHT, "Hello Vulkan!" };
-		Pipeline m_Pipeline{ "Shaders/SimpleShader.vert.spv", "Shaders/SimpleShader.frag.spv" };
+		Device m_Device{ m_Window };
+		Pipeline m_Pipeline
+		{
+			m_Device,
+			"Shaders/SimpleShader.vert.spv",
+			"Shaders/SimpleShader.frag.spv",
+			Pipeline::DefaultPipelineConfigInfo(m_WIDTH, m_HEIGHT)
+		};
 	};
 }
