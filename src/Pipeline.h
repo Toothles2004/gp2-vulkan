@@ -22,7 +22,7 @@ namespace lve
 		uint32_t subpass = 0;
 	};
 
-	class Pipeline
+	class Pipeline final
 	{
 	public:
 		Pipeline

@@ -3,6 +3,7 @@
 #include "Pipeline.h"
 #include "Device.h"
 #include "SwapChain.h"
+#include "Mesh.h"
 
 // std includes
 #include <memory>
@@ -10,7 +11,7 @@
 
 namespace lve
 {
-	class Application
+	class Application final
 	{
 	public:
 		static constexpr int m_WIDTH{ 800 };
@@ -27,6 +28,7 @@ namespace lve
 		void Run();
 
 	private:
+		void LoadModels();
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
@@ -38,5 +40,6 @@ namespace lve
 		std::unique_ptr<Pipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
+		std::unique_ptr<Mesh> m_Mesh;
 	};
 }

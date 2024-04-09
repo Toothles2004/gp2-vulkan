@@ -7,6 +7,7 @@ namespace lve
 {
 	Application::Application()
 	{
+		LoadModels();
 		CreatePipelineLayout();
 		CreatePipeline();
 		CreateCommandBuffers();
@@ -26,6 +27,18 @@ namespace lve
 		}
 
 		vkDeviceWaitIdle(m_Device.GetDevice());
+	}
+
+	void Application::LoadModels()
+	{
+		std::vector<Mesh::Vertex> vertices
+		{
+			{{0.0f, -0.5f}, {1.f, 0.f, 0.f}},
+			{{0.5f, 0.5f}, {0.f, 1.f, 0.f}},
+			{{-0.5f, 0.5f}, {0.f, 0.f, 1.f}}
+		};
+
+		m_Mesh = std::make_unique<Mesh>(m_Device, vertices);
 	}
 
 	void Application::CreatePipelineLayout()
@@ -93,7 +106,8 @@ namespace lve
 			vkCmdBeginRenderPass(m_CommandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			m_Pipeline->Bind(m_CommandBuffers[index]);
-			vkCmdDraw(m_CommandBuffers[index], 3, 1, 0, 0);
+			m_Mesh->Bind(m_CommandBuffers[index]);
+			m_Mesh->Draw(m_CommandBuffers[index]);
 
 			vkCmdEndRenderPass(m_CommandBuffers[index]);
 			if(vkEndCommandBuffer(m_CommandBuffers[index]) != VK_SUCCESS)

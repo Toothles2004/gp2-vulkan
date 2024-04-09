@@ -21,7 +21,8 @@ namespace lve {
         bool IsComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
     };
 
-    class Device {
+    class Device final
+	{
     public:
 #ifdef NDEBUG
         const bool m_EnableValidationLayers = false;

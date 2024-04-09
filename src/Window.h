@@ -6,7 +6,7 @@
 
 namespace lve
 {
-	class Window
+	class Window final
 	{
 	public:
 		Window(int width, int height, std::string name);

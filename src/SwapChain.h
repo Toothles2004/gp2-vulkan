@@ -11,7 +11,8 @@
 
 namespace lve {
 
-    class SwapChain {
+    class SwapChain final
+	{
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
