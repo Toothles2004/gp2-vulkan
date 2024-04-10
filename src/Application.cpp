@@ -1,9 +1,11 @@
 #include "Application.h"
 #include "SimpleRenderSystem.h"
 #include "Camera.h"
+#include "KeyboardInput.h"
 
 // std
 #include <stdexcept>
+#include <chrono>
 #include <array>
 #include <cassert>
 
@@ -29,16 +31,26 @@ namespace lve
 		SimpleRenderSystem simpleRenderSystem{m_Device, m_Renderer.GetSwapChainRenderPass()};
         Camera camera{};
 
-        //camera.SetViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
         camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+
+        auto viewerObject = GameObject::CreateGameObject();
+        KeyboardInput cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
 
 		while(!m_Window.ShouldClose())
 		{
 			glfwPollEvents();
 
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            cameraController.MoveInPlaneXYZ(m_Window.GetGLFWwindow(), frameTime, viewerObject);
+            camera.SetViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
             float aspect = m_Renderer.GetAspectRatio();
 
-            //camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
             camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
 			if(auto commandBuffer = m_Renderer.BeginFrame())
