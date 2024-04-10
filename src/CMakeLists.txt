@@ -28,7 +28,7 @@ set(SOURCES
 )
 
 # Create the executable
-add_executable(MainProject ${SOURCES} ${GLSL_SOURCE_FILES}  "Window.h" "Window.cpp" "Application.h" "Application.cpp" "Pipeline.h" "Pipeline.cpp" "Device.h" "Device.cpp" "SwapChain.h" "SwapChain.cpp" "Mesh.h" "Mesh.cpp" "GameObject.h" "GameObject.cpp")
+add_executable(MainProject ${SOURCES} ${GLSL_SOURCE_FILES}  "Window.h" "Window.cpp" "Application.h" "Application.cpp" "Pipeline.h" "Pipeline.cpp" "Device.h" "Device.cpp" "SwapChain.h" "SwapChain.cpp" "Mesh.h" "Mesh.cpp" "GameObject.h"  "Renderer.h" "Renderer.cpp" "SimpleRenderSystem.h" "SimpleRenderSystem.cpp")
 add_dependencies(${PROJECT_NAME} Shaders)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY COMPILE_WARNING_AS_ERROR ON)

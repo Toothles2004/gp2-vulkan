@@ -20,7 +20,6 @@ namespace lve
 
 			glm::mat2 scaleMat{ {scale.x, 0.f}, {0.f, scale.y} };
 			return rotMatrix * scaleMat;
-			//return scaleMat * rotMatrix;
 		}
 	};
 

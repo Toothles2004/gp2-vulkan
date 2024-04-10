@@ -325,6 +325,7 @@ namespace lve {
     void SwapChain::CreateDepthResources()
 	{
         VkFormat depthFormat = FindDepthFormat();
+        m_SwapChainDepthFormat = depthFormat;
         VkExtent2D swapChainExtent = GetSwapChainExtent();
 
         m_DepthImages.resize(GetImageCount());

@@ -1,10 +1,8 @@
 #pragma once
 #include "Window.h"
-#include "Pipeline.h"
 #include "Device.h"
-#include "SwapChain.h"
-#include "Mesh.h"
 #include "GameObject.h"
+#include "Renderer.h"
 
 // std includes
 #include <memory>
@@ -30,21 +28,10 @@ namespace lve
 
 	private:
 		void LoadGameObjects();
-		void CreatePipelineLayout();
-		void CreatePipeline();
-		void CreateCommandBuffers();
-		void FreeCommandBuffers();
-		void DrawFrame();
-		void RecreateSwapChain();
-		void RecordCommandBuffer(int imageIndex);
-		void RenderGameObjects(VkCommandBuffer commandBuffer);
 
 		Window m_Window{ m_WIDTH, m_HEIGHT, "Hello Vulkan!" };
 		Device m_Device{ m_Window };
-		std::unique_ptr<SwapChain> m_SwapChain;
-		std::unique_ptr<Pipeline> m_Pipeline;
-		VkPipelineLayout m_PipelineLayout;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
+		Renderer m_Renderer{ m_Window, m_Device };
 		std::vector<GameObject> m_GameObjects;
 	};
 }

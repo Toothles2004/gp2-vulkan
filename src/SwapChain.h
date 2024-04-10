@@ -21,9 +21,6 @@ namespace lve {
         SwapChain(Device& deviceRef, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
         ~SwapChain();
 
-        SwapChain(const SwapChain&) = delete;
-        void operator=(const SwapChain&) = delete;
-
         VkFramebuffer GetFrameBuffer(int index) { return m_SwapChainFramebuffers[index]; }
         VkRenderPass GetRenderPass() { return m_RenderPass; }
         VkImageView GetImageView(int index) { return m_SwapChainImageViews[index]; }
@@ -40,6 +37,17 @@ namespace lve {
 
         VkResult AcquireNextImage(uint32_t* imageIndex);
         VkResult SubmitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
+
+        bool CompareSwapFormats(const SwapChain& swapChain) const
+    	{
+			return swapChain.m_SwapChainDepthFormat == m_SwapChainDepthFormat &&
+				   swapChain.m_SwapChainImageFormat == m_SwapChainImageFormat;
+		}
+
+        SwapChain(const SwapChain&) = delete;
+        SwapChain(SwapChain&&) = delete;
+        SwapChain& operator=(const SwapChain&) = delete;
+        SwapChain& operator=(SwapChain&&) = delete;
 
     private:
         void Init();
@@ -58,6 +66,7 @@ namespace lve {
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
         VkFormat m_SwapChainImageFormat;
+        VkFormat m_SwapChainDepthFormat;
         VkExtent2D m_SwapChainExtent;
 
         std::vector<VkFramebuffer> m_SwapChainFramebuffers;
