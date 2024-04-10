@@ -29,6 +29,9 @@ namespace lve
 		SimpleRenderSystem simpleRenderSystem{m_Device, m_Renderer.GetSwapChainRenderPass()};
         Camera camera{};
 
+        //camera.SetViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+        camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+
 		while(!m_Window.ShouldClose())
 		{
 			glfwPollEvents();

@@ -203,10 +203,6 @@ namespace lve {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        // we only specified a minimum number of images in the swap chain, so the implementation is
-        // allowed to create a swap chain with more. That's why we'll first query the final number of
-        // images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
-        // retrieve the handles.
         vkGetSwapchainImagesKHR(m_Device.GetDevice(), m_SwapChain, &imageCount, nullptr);
         m_SwapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(m_Device.GetDevice(), m_SwapChain, &imageCount, m_SwapChainImages.data());
@@ -412,7 +408,7 @@ namespace lve {
 
     VkPresentModeKHR SwapChain::ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
 	{
-        /*for (const auto& availablePresentMode : availablePresentModes) 
+       /* for (const auto& availablePresentMode : availablePresentModes) 
         {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) 
             {
