@@ -4,6 +4,7 @@
 #include "Device.h"
 #include "SwapChain.h"
 #include "Mesh.h"
+#include "GameObject.h"
 
 // std includes
 #include <memory>
@@ -28,7 +29,7 @@ namespace lve
 		void Run();
 
 	private:
-		void LoadModels();
+		void LoadGameObjects();
 		void CreatePipelineLayout();
 		void CreatePipeline();
 		void CreateCommandBuffers();
@@ -36,6 +37,7 @@ namespace lve
 		void DrawFrame();
 		void RecreateSwapChain();
 		void RecordCommandBuffer(int imageIndex);
+		void RenderGameObjects(VkCommandBuffer commandBuffer);
 
 		Window m_Window{ m_WIDTH, m_HEIGHT, "Hello Vulkan!" };
 		Device m_Device{ m_Window };
@@ -43,6 +45,6 @@ namespace lve
 		std::unique_ptr<Pipeline> m_Pipeline;
 		VkPipelineLayout m_PipelineLayout;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
-		std::unique_ptr<Mesh> m_Mesh;
+		std::vector<GameObject> m_GameObjects;
 	};
 }
