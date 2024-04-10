@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "SimpleRenderSystem.h"
+#include "Camera.h"
 
 // std
 #include <stdexcept>
@@ -26,15 +27,21 @@ namespace lve
 	void Application::Run()
 	{
 		SimpleRenderSystem simpleRenderSystem{m_Device, m_Renderer.GetSwapChainRenderPass()};
+        Camera camera{};
 
 		while(!m_Window.ShouldClose())
 		{
 			glfwPollEvents();
 
+            float aspect = m_Renderer.GetAspectRatio();
+
+            //camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+
 			if(auto commandBuffer = m_Renderer.BeginFrame())
 			{
 				m_Renderer.BeginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.RenderGameObjects(commandBuffer, m_GameObjects);
+				simpleRenderSystem.RenderGameObjects(commandBuffer, m_GameObjects, camera);
 				m_Renderer.EndSwapChainRenderPass(commandBuffer);
 				m_Renderer.EndFrame();
 			}
@@ -112,7 +119,7 @@ namespace lve
 
         auto cube = GameObject::CreateGameObject();
         cube.mesh = mesh;
-        cube.transform.translation = { 0.f, 0.f, 0.5f };
+        cube.transform.translation = { 0.f, 0.f, 2.5f };
         cube.transform.scale = { 0.5f, 0.5f, 0.5f };
         m_GameObjects.push_back(std::move(cube));
 	}

@@ -2,6 +2,7 @@
 #include "Pipeline.h"
 #include "Device.h"
 #include "GameObject.h"
+#include "Camera.h"
 
 // std includes
 #include <memory>
@@ -16,7 +17,7 @@ namespace lve
 		SimpleRenderSystem(Device& device, VkRenderPass renderPass);
 		~SimpleRenderSystem();
 
-		void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects);
+		void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const Camera& camera);
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem(SimpleRenderSystem&&) = delete;
