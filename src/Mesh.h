@@ -7,6 +7,7 @@
 
 // std include
 #include <vector>
+#include <memory>
 
 namespace lve
 {
@@ -17,15 +18,24 @@ namespace lve
 		{
 			glm::vec3 position{};
 			glm::vec3 color{};
+			glm::vec3 normal{};
+			glm::vec2 uv{};
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
+
+			bool operator== (const Vertex& other) const
+			{
+				return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+			}
 		};
 
 		struct Data
 		{
 			std::vector<Vertex> vertices{};
 			std::vector<uint32_t> indices{};
+
+			void LoadModel(const std::string& filePath);
 		};
 		
 		Mesh(Device& device, const Data& builder);
@@ -33,6 +43,8 @@ namespace lve
 
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);
+
+		static std::unique_ptr<Mesh> CreateModelFromFile(Device& device, const std::string& filePath);
 
 		Mesh(const Mesh&) = delete;
 		Mesh(Mesh&&) = delete;

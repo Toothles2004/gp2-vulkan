@@ -65,69 +65,16 @@ namespace lve
 		vkDeviceWaitIdle(m_Device.GetDevice());
 	}
 
-    std::unique_ptr<Mesh> CreateCubeModel(Device& device, glm::vec3 offset)
-	{
-        Mesh::Data modelBuilder{};
-        modelBuilder.vertices = {
-            // left face (white)
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-
-            // right face (yellow)
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-
-            // top face (orange, remember y axis points down)
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-
-            // bottom face (red)
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-
-            // nose face (blue)
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-
-            // tail face (green)
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-        };
-
-        for (auto& v : modelBuilder.vertices) 
-        {
-            v.position += offset;
-        }
-
-        modelBuilder.indices = 
-        {
-        	0,  1,  2,  0,  3,  1,  4,  5,  6,  4,  7,  5,  8,  9,  10, 8,  11, 9,
-        	12, 13, 14, 12, 15, 13, 16, 17, 18, 16, 19, 17, 20, 21, 22, 20, 23, 21
-        };
-
-        return std::make_unique<Mesh>(device, modelBuilder);
-    }
-
 	void Application::LoadGameObjects()
 	{
-		std::shared_ptr<Mesh> mesh = CreateCubeModel(m_Device, {0, 0, 0});
+		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\smoothVase.obj");
+		//std::cout << std::filesystem::current_path().string() << std::endl;
+		//std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "Models/cube.obj");
 
-        auto cube = GameObject::CreateGameObject();
-        cube.mesh = mesh;
-        cube.transform.translation = { 0.f, 0.f, 2.5f };
-        cube.transform.scale = { 0.5f, 0.5f, 0.5f };
-        m_GameObjects.push_back(std::move(cube));
+        auto gameObject = GameObject::CreateGameObject();
+        gameObject.mesh = mesh;
+        gameObject.transform.translation = { 0.f, 0.f, 2.5f };
+		gameObject.transform.scale = glm::vec3{ 3.f };
+        m_GameObjects.push_back(std::move(gameObject));
 	}
 }
