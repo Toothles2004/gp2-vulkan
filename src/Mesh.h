@@ -15,14 +15,20 @@ namespace lve
 	public:
 		struct Vertex
 		{
-			glm::vec3 position;
-			glm::vec3 color;
+			glm::vec3 position{};
+			glm::vec3 color{};
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();
 			static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions();
 		};
+
+		struct Data
+		{
+			std::vector<Vertex> vertices{};
+			std::vector<uint32_t> indices{};
+		};
 		
-		Mesh(Device& device, const std::vector<Vertex>& vertices);
+		Mesh(Device& device, const Data& builder);
 		~Mesh();
 
 		void Bind(VkCommandBuffer commandBuffer);
@@ -35,10 +41,16 @@ namespace lve
 
 	private:
 		void CreateVertexBuffers(const std::vector<Vertex>& vertices);
+		void CreateIndexBuffer(const std::vector<uint32_t>& indices);
 
 		Device& m_Device;
 		VkBuffer m_VertrexBuffer;
 		VkDeviceMemory m_VertexBufferMemory;
 		uint32_t m_VertexCount;
+
+		bool m_HasIndexBuffer = false;
+		VkBuffer m_IndexBuffer;
+		VkDeviceMemory m_IndexBufferMemory;
+		uint32_t m_IndexCount;
 	};
 }
