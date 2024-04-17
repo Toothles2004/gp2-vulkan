@@ -10,6 +10,7 @@
 //std
 #include <cassert>
 #include <cstring>
+#include <filesystem>
 #include <unordered_map>
 
 namespace std
@@ -35,7 +36,10 @@ namespace lve
 		std::vector<tinyobj::material_t> materials;
 		std::string warning, err;
 
-		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warning, &err, filePath.c_str()))
+		std::string file = __FILE__;
+		const std::string path = file.substr(0, file.find_last_of("/\\")) + filePath;
+
+		if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warning, &err, path.c_str()))
 		{
 			throw std::runtime_error(warning + err);
 		}

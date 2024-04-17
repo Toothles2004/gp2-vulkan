@@ -67,7 +67,7 @@ namespace lve
 
 	void Application::LoadGameObjects()
 	{
-		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\flatVase.obj");
+		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\flatVase.obj");
 
         auto flatVase = GameObject::CreateGameObject();
         flatVase.mesh = mesh;
@@ -75,7 +75,7 @@ namespace lve
 		flatVase.transform.scale = glm::vec3{ 3.f };
         m_GameObjects.push_back(std::move(flatVase));
 
-		mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\smoothVase.obj");
+		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\smoothVase.obj");
 
 		auto smoothVase = GameObject::CreateGameObject();
 		smoothVase.mesh = mesh;
