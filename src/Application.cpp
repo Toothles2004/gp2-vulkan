@@ -17,6 +17,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
+#include "RenderSystem2D.h"
+
 namespace lve
 {
 	struct GlobalUbo
@@ -54,12 +56,15 @@ namespace lve
 		}
 
 		SimpleRenderSystem simpleRenderSystem{m_Device, m_Renderer.GetSwapChainRenderPass()};
+		RenderSystem2D renderSystem2D{m_Device, m_Renderer.GetSwapChainRenderPass()};
         Camera camera{};
 
         camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
         auto viewerObject = GameObject::CreateGameObject();
         KeyboardInput cameraController{};
+		/*void* pUser = glfwGetWindowUserPointer(m_Window.GetGLFWwindow());
+		KeyboardInput* cameraController = static_cast<KeyboardInput*>(pUser);*/
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -71,7 +76,8 @@ namespace lve
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.MoveInPlaneXYZ(m_Window.GetGLFWwindow(), frameTime, viewerObject);
+            //cameraController.MoveInPlaneXYZ(m_Window.GetGLFWwindow(), frameTime, viewerObject);
+			cameraController.Update(viewerObject, frameTime);
             camera.SetViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = m_Renderer.GetAspectRatio();
@@ -98,6 +104,7 @@ namespace lve
 				// Render
 				m_Renderer.BeginSwapChainRenderPass(commandBuffer);
 				simpleRenderSystem.RenderGameObjects(frameInfo, m_GameObjects);
+				renderSystem2D.RenderGameObjects(frameInfo, m_GameObjects2D);
 				m_Renderer.EndSwapChainRenderPass(commandBuffer);
 				m_Renderer.EndFrame();
 			}
@@ -109,7 +116,6 @@ namespace lve
 	void Application::LoadGameObjects()
 	{
 		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\flatVase.obj");
-
         auto flatVase = GameObject::CreateGameObject();
         flatVase.mesh = mesh;
         flatVase.transform.translation = { -0.5f, 0.5f, 2.5f };
@@ -117,11 +123,24 @@ namespace lve
         m_GameObjects.push_back(std::move(flatVase));
 
 		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\smoothVase.obj");
-
 		auto smoothVase = GameObject::CreateGameObject();
 		smoothVase.mesh = mesh;
 		smoothVase.transform.translation = { 0.5f, 0.5f, 2.5f };
 		smoothVase.transform.scale = glm::vec3{ 3.f };
 		m_GameObjects.push_back(std::move(smoothVase));
+
+		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\smoothVase.obj");
+		GameObject gameObject{ GameObject::CreateGameObject() };
+		gameObject.mesh = mesh;
+		gameObject.transform.translation = { 0.8f, 0.8f, .5f };
+		gameObject.transform.scale = { 1.5f, 1.5f, 1.5f };
+		m_GameObjects2D.push_back(std::move(gameObject));
+
+		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\cube.obj");
+		GameObject cube{ GameObject::CreateGameObject() };
+		cube.mesh = mesh;
+		cube.transform.translation = { -0.7f, 0.5f, 0.2f };
+		cube.transform.scale = { 0.2f, 0.2f, 0.2f };
+		m_GameObjects2D.push_back(std::move(cube));
 	}
 }

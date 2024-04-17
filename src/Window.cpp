@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "KeyboardInput.h"
 
 #include <stdexcept>
 
@@ -45,25 +46,25 @@ namespace lve
 		glfwSetWindowUserPointer(m_Window, this);
 		glfwSetFramebufferSizeCallback(m_Window, FrameBufferResizedCallback);
 
-		/*glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			void* pUser = glfwGetWindowUserPointer(window);
-			VulkanBase* vBase = static_cast<VulkanBase*>(pUser);
-			vBase->keyEvent(key, scancode, action, mods);
+			KeyboardInput* vBase = static_cast<KeyboardInput*>(pUser);
+			vBase->KeyEvent(key, scancode, action, mods);
 		});
 
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos)
 		{
 			void* pUser = glfwGetWindowUserPointer(window);
-			VulkanBase* vBase = static_cast<VulkanBase*>(pUser);
-			vBase->mouseMove(window, xpos, ypos);
+			KeyboardInput* vBase = static_cast<KeyboardInput*>(pUser);
+			vBase->MouseMove(window, xpos, ypos);
 		});
 
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
 		{
 			void* pUser = glfwGetWindowUserPointer(window);
-			VulkanBase* vBase = static_cast<VulkanBase*>(pUser);
-			vBase->mouseEvent(window, button, action, mods);
-		});*/
+			KeyboardInput* vBase = static_cast<KeyboardInput*>(pUser);
+			vBase->MouseEvent(window, button, action, mods);
+		});
 	}
 }

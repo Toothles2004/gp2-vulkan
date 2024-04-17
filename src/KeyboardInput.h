@@ -7,28 +7,20 @@ namespace lve
 	class KeyboardInput
 	{
 	public:
-		struct KeyMappings
-		{
-            int moveLeft = GLFW_KEY_A;
-            int moveRight = GLFW_KEY_D;
-            int moveForward = GLFW_KEY_W;
-            int moveBackward = GLFW_KEY_S;
-            int moveUp = GLFW_KEY_E;
-            int moveDown = GLFW_KEY_Q;
-            int lookLeft = GLFW_KEY_LEFT;
-            int lookRight = GLFW_KEY_RIGHT;
-            int lookUp = GLFW_KEY_UP;
-            int lookDown = GLFW_KEY_DOWN;
-		};
+		KeyboardInput() = default;
+		void KeyEvent(int key, int scancode, int action, int mods);
+		void MouseMove(GLFWwindow* window, double xpos, double ypos);
+		void MouseEvent(GLFWwindow* window, int button, int action, int mods);
+		void Update(GameObject& gameObject, float deltaTime);
 
-        void MoveInPlaneXYZ(GLFWwindow* window, float deltaTime, GameObject& gameObject);
-
-        void MouseCallback(GLFWwindow* window, double xpos, double ypos);
-
-    private:
-        KeyMappings keys{};
-        float moveSpeed{ 3.f };
-        float lookSpeed{ 1.5f };
+	private:
+		static inline glm::vec2 m_DragStart{0,0};
+		static inline glm::vec3 m_Rotation{0,0,0};
+		static inline glm::vec3 m_MoveDir{0.f,0.f,0.f};
+		static inline const float m_MoveSpeed{ 1.f };
+		static inline const float m_LookSpeed{ 1.f };
+		static inline float m_Yaw{ 0.f };
+		static inline float m_Pitch{ 0.f };
 	};
 }
 

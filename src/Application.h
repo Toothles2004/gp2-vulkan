@@ -33,5 +33,6 @@ namespace lve
 		Device m_Device{ m_Window };
 		Renderer m_Renderer{ m_Window, m_Device };
 		std::vector<GameObject> m_GameObjects;
+		std::vector<GameObject> m_GameObjects2D;
 	};
 }

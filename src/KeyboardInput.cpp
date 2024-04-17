@@ -1,71 +1,82 @@
 #include "KeyboardInput.h"
+
+#include <iostream>
 #include <limits>
 
-void lve::KeyboardInput::MoveInPlaneXYZ(GLFWwindow* window, float deltaTime, GameObject& gameObject)
+namespace lve
 {
-	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos);
+    void KeyboardInput::KeyEvent(int key, int scancode, int action, int mods)
+    {
+        m_MoveDir = glm::vec3(0.f);
 
-	glm::vec3 rotate{ 0 };
-	if(glfwGetKey(window, keys.lookRight) == GLFW_PRESS)
-	{
-		rotate.y += 1.f;
-	}
-	if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS)
-	{
-		rotate.y -= 1.f;
-	}
-	if (glfwGetKey(window, keys.lookUp) == GLFW_PRESS)
-	{
-		rotate.x += 1.f;
-	}
-	if (glfwGetKey(window, keys.lookDown) == GLFW_PRESS)
-	{
-		rotate.x -= 1.f;
-	}
+        const glm::vec3 forwardDir{ sin(m_Yaw), sin(-m_Pitch)*cos(m_Yaw), cos(m_Yaw) };
+        const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
+        const glm::vec3 upDir{ 0.f, -1.f, 0.f };
 
-	if(glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
-	{
-		gameObject.transform.rotation += lookSpeed * deltaTime * glm::normalize(rotate);
-	}
+        // wasd movement of camera
+        if (key == GLFW_KEY_W && (action == GLFW_REPEAT || action == GLFW_PRESS))
+        {
+            m_MoveDir += forwardDir;
+        }
+        if (key == GLFW_KEY_S && (action == GLFW_REPEAT || action == GLFW_PRESS))
+        {
+            m_MoveDir += -forwardDir ;
+        }
+        if (key == GLFW_KEY_A && (action == GLFW_REPEAT || action == GLFW_PRESS))
+        {
+            m_MoveDir += -rightDir;
+        }
+        if (key == GLFW_KEY_D && (action == GLFW_REPEAT || action == GLFW_PRESS))
+        {
+            m_MoveDir += rightDir;
+        }
+    }
 
-	gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);
-	gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y, glm::two_pi<float>());
+    void KeyboardInput::MouseMove(GLFWwindow* window, double xpos, double ypos)
+    {
 
-	float yaw = gameObject.transform.rotation.y;
-	const glm::vec3 forwardDir{ sin(yaw), 0.f, cos(yaw) };
-	const glm::vec3 rightDir{ forwardDir.z, 0.f, -forwardDir.x };
-	const glm::vec3 upDir{ 0.f, -1.f, 0.f };
+        int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+        if (state == GLFW_PRESS)
+        {
+            float dx = static_cast<float>(xpos) - m_DragStart.x;
+            float dy = static_cast<float>(ypos) - m_DragStart.y;
+            if (dx > 0)
+            {
+                m_Rotation.y += -dx/ 10000;
+            }
+            else if (dx < 0)
+            {
+                m_Rotation.y += -dx/ 10000;
+            }
+            if (dy > 0)
+            {
+                m_Rotation.x += dy/ 10000;
+            }
+            else if (dy < 0)
+            {
+                m_Rotation.x += dy/ 10000;
+            }
+        }
+    }
 
-	glm::vec3 moveDir{ 0.f };
+    void KeyboardInput::MouseEvent(GLFWwindow* window, int button, int action, int mods)
+    {
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+        {
+            std::cout << "right mouse button pressed\n";
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            m_DragStart.x = static_cast<float>(xpos);
+            m_DragStart.y = static_cast<float>(ypos);
+        }
+    }
 
-	if (glfwGetKey(window, keys.moveForward) == GLFW_PRESS)
-	{
-		moveDir += forwardDir;
-	}
-	if(glfwGetKey(window, keys.moveBackward) == GLFW_PRESS)
-	{
-		moveDir -= forwardDir;
-	}
-	if(glfwGetKey(window, keys.moveRight) == GLFW_PRESS)
-	{
-		moveDir += rightDir;
-	}
-	if(glfwGetKey(window, keys.moveLeft) == GLFW_PRESS)
-	{
-		moveDir -= rightDir;
-	}
-	if(glfwGetKey(window, keys.moveUp) == GLFW_PRESS)
-	{
-		moveDir += upDir;
-	}
-	if(glfwGetKey(window, keys.moveDown) == GLFW_PRESS)
-	{
-		moveDir -= upDir;
-	}
+    void KeyboardInput::Update(GameObject& gameObject, float deltaTime)
+    {
+    	gameObject.transform.rotation = m_Rotation;
+        m_Yaw = gameObject.transform.rotation.y;
+        m_Pitch = gameObject.transform.rotation.x;
 
-	if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon())
-	{
-		gameObject.transform.translation += moveSpeed * deltaTime * glm::normalize(moveDir);
-	}
+		gameObject.transform.translation += m_MoveSpeed * deltaTime * m_MoveDir;
+    }
 }
