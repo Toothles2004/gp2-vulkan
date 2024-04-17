@@ -2,12 +2,14 @@
 #include "SimpleRenderSystem.h"
 #include "Camera.h"
 #include "KeyboardInput.h"
+#include "Buffer.h"
 
 // std
 #include <stdexcept>
 #include <chrono>
 #include <array>
 #include <cassert>
+#include <numeric>
 
 //library
 #define GLM_FORCE_RADIANS
@@ -17,6 +19,12 @@
 
 namespace lve
 {
+	struct GlobalUbo
+	{
+		glm::mat4 projectionView{1.f};
+		glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+	};
+
 	Application::Application()
 	{
 		LoadGameObjects();
@@ -28,6 +36,23 @@ namespace lve
 
 	void Application::Run()
 	{
+		std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+		for(int index{}; index < uboBuffers.size(); ++index)
+		{
+			uboBuffers[index] = std::make_unique<Buffer>
+			(
+				m_Device,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				// VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, automatically flush memory
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+
+			uboBuffers[index]->Map();
+		}
+
 		SimpleRenderSystem simpleRenderSystem{m_Device, m_Renderer.GetSwapChainRenderPass()};
         Camera camera{};
 
@@ -55,8 +80,24 @@ namespace lve
 
 			if(auto commandBuffer = m_Renderer.BeginFrame())
 			{
+				int frameIndex = m_Renderer.GetFrameIndex();
+				FrameInfo frameInfo
+				{
+					frameIndex,
+					frameTime,
+					commandBuffer,
+					camera
+				};
+
+				// Update
+				GlobalUbo ubo{};
+				ubo.projectionView = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
+				uboBuffers[frameIndex]->Flush();
+
+				// Render
 				m_Renderer.BeginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.RenderGameObjects(commandBuffer, m_GameObjects, camera);
+				simpleRenderSystem.RenderGameObjects(frameInfo, m_GameObjects);
 				m_Renderer.EndSwapChainRenderPass(commandBuffer);
 				m_Renderer.EndFrame();
 			}

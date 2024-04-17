@@ -3,6 +3,7 @@
 #include "Device.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "FrameInfo.h"
 
 // std includes
 #include <memory>
@@ -17,7 +18,7 @@ namespace lve
 		SimpleRenderSystem(Device& device, VkRenderPass renderPass);
 		~SimpleRenderSystem();
 
-		void RenderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjects, const Camera& camera);
+		void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem(SimpleRenderSystem&&) = delete;
