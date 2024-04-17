@@ -67,14 +67,20 @@ namespace lve
 
 	void Application::LoadGameObjects()
 	{
-		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\smoothVase.obj");
-		//std::cout << std::filesystem::current_path().string() << std::endl;
-		//std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "Models/cube.obj");
+		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\flatVase.obj");
 
-        auto gameObject = GameObject::CreateGameObject();
-        gameObject.mesh = mesh;
-        gameObject.transform.translation = { 0.f, 0.f, 2.5f };
-		gameObject.transform.scale = glm::vec3{ 3.f };
-        m_GameObjects.push_back(std::move(gameObject));
+        auto flatVase = GameObject::CreateGameObject();
+        flatVase.mesh = mesh;
+        flatVase.transform.translation = { -0.5f, 0.5f, 2.5f };
+		flatVase.transform.scale = glm::vec3{ 3.f };
+        m_GameObjects.push_back(std::move(flatVase));
+
+		mesh = Mesh::CreateModelFromFile(m_Device, "C:\\Users\\leent\\Documents\\school\\DAE_GD\\semester_4\\Graphics_programming_2\\projects\\Assignment\\gp2-vulkan\\src\\Models\\smoothVase.obj");
+
+		auto smoothVase = GameObject::CreateGameObject();
+		smoothVase.mesh = mesh;
+		smoothVase.transform.translation = { 0.5f, 0.5f, 2.5f };
+		smoothVase.transform.scale = glm::vec3{ 3.f };
+		m_GameObjects.push_back(std::move(smoothVase));
 	}
 }
