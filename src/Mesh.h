@@ -46,6 +46,7 @@ namespace lve
 		void Draw(VkCommandBuffer commandBuffer);
 
 		static std::unique_ptr<Mesh> CreateModelFromFile(Device& device, const std::string& filePath);
+		static std::unique_ptr<Mesh> GenerateTerrain(Device& device, int rows, int columns, float height, float width);
 
 		Mesh(const Mesh&) = delete;
 		Mesh(Mesh&&) = delete;

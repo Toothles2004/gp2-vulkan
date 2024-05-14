@@ -59,7 +59,7 @@ namespace lve
 		RenderSystem2D renderSystem2D{m_Device, m_Renderer.GetSwapChainRenderPass()};
         Camera camera{};
 
-        camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+        camera.SetViewTarget(glm::vec3(1.0f, 3.0f, 0.0f), glm::vec3(0.f, 0.f, 2.5f));
 
         auto viewerObject = GameObject::CreateGameObject();
         KeyboardInput cameraController{};
@@ -82,7 +82,7 @@ namespace lve
 
             float aspect = m_Renderer.GetAspectRatio();
 
-            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            camera.SetPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
 			if(auto commandBuffer = m_Renderer.BeginFrame())
 			{
@@ -115,6 +115,13 @@ namespace lve
 
 	void Application::LoadGameObjects()
 	{
+		std::shared_ptr<Mesh> plane = Mesh::GenerateTerrain(m_Device, 128, 128, 10, 10);
+		auto grid = GameObject::CreateGameObject();
+		grid.mesh = plane;
+		grid.transform.translation = { 0.f, 5.0f, 0.0f };
+		grid.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(grid));
+
 		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\flatVase.obj");
         auto flatVase = GameObject::CreateGameObject();
         flatVase.mesh = mesh;

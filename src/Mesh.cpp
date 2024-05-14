@@ -177,6 +177,70 @@ namespace lve
 		return std::make_unique<Mesh>(device, data);
 	}
 
+	std::unique_ptr<Mesh> Mesh::GenerateTerrain(Device& device, int rows, int columns, float height, float width)
+	{
+		Data data{};
+		
+		// Generate vertices
+		for (int y{}; y < rows; ++y)
+		{
+			for (int x{}; x < columns; ++x)
+			{
+				Vertex vertex{};
+				
+				if (y > 5 && y < 8)
+				{
+					vertex.position = { static_cast<float>(x) * width / rows, -1.0f, static_cast<float>(y) * height / columns };
+					vertex.color = { 1.0f, 1.0f, 0.0f };
+					vertex.normal = { 0.0f, -1.0f, 0.0f };
+					vertex.uv = { static_cast<float>(x) * width / rows / (columns - 1), static_cast<float>(y) * height / columns / (rows - 1) };
+				}
+				else
+				{
+					vertex.position = { static_cast<float>(x) * width / rows, 0.0f, static_cast<float>(y) * height / columns };
+					vertex.color = { 1.0f, 1.0f, 0.0f };
+					vertex.normal = { 0.0f, -1.0f, 0.0f };
+					vertex.uv = { static_cast<float>(x) * width / rows / (columns - 1), static_cast<float>(y) * height / columns / (rows - 1) };
+				}
+				
+				data.vertices.push_back(vertex);
+			}
+		}
+
+		// Generate indices
+		for (int y{}; y < rows - 1; ++y)
+		{
+			for (int x{}; x < columns - 1; ++x)
+			{
+				const int topLeft = y * columns + x;
+				const int topRight = topLeft + 1;
+				const int bottomLeft = (y + 1) * columns + x;
+				const int bottomRight = bottomLeft + 1;
+
+				// Calculate normal for this face
+				glm::vec3 edge1 = data.vertices[topRight].position - data.vertices[topLeft].position;
+				glm::vec3 edge2 = data.vertices[bottomLeft].position - data.vertices[topLeft].position;
+				glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+
+				// Assign normal to all vertices of this face
+				data.vertices[topLeft].normal = normal;
+				data.vertices[topRight].normal = normal;
+				data.vertices[bottomLeft].normal = normal;
+				data.vertices[bottomRight].normal = normal;
+
+				data.indices.push_back(topLeft);
+				data.indices.push_back(bottomLeft);
+				data.indices.push_back(topRight);
+
+				data.indices.push_back(topRight);
+				data.indices.push_back(bottomLeft);
+				data.indices.push_back(bottomRight);
+			}
+		}
+	
+		return std::make_unique<Mesh>(device, data);
+	}
+
 	void Mesh::CreateVertexBuffers(const std::vector<Vertex>& vertices)
 	{
 		m_VertexCount = static_cast<uint32_t>(vertices.size());
