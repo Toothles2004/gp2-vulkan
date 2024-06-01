@@ -14,6 +14,7 @@
 //library
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -115,22 +116,35 @@ namespace lve
 
 	void Application::LoadGameObjects()
 	{
-		std::shared_ptr<Mesh> plane = Mesh::GenerateTerrain(m_Device, 128, 128, 10, 10);
-		auto grid = GameObject::CreateGameObject();
-		grid.mesh = plane;
-		grid.transform.translation = { 0.f, 5.0f, 0.0f };
-		grid.transform.scale = glm::vec3{ 1.f };
-		m_GameObjects.push_back(std::move(grid));
+		int rows{ 128 };
+		int columns{ 128 };
+		float height{ 10 };
+		float width{ 10 };
+		
+		std::pair<Device&, Mesh::Data> temp = Mesh::GeneratePerlinNoiseMap(m_Device, rows, columns, height, width, 0.08f);
+		std::shared_ptr<Mesh> perlinMap = std::make_unique<Mesh>(temp.first, temp.second);
+		auto perlinNoise{ GameObject::CreateGameObject() };
+		perlinNoise.mesh = perlinMap;
+		perlinNoise.transform.translation = { -15.f, 5.0f, 10.0f };
+		perlinNoise.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(perlinNoise));
+
+		std::shared_ptr<Mesh> mountainTerrain = Mesh::CreateTerrain(m_Device, rows, columns, temp.second);
+		auto terrain { GameObject::CreateGameObject() };
+		terrain.mesh = mountainTerrain;
+		terrain.transform.translation = { -5.f, 5.0f, 10.0f };
+		terrain.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(terrain));
 
 		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\flatVase.obj");
-        auto flatVase = GameObject::CreateGameObject();
+		auto flatVase{ GameObject::CreateGameObject() };
         flatVase.mesh = mesh;
         flatVase.transform.translation = { -0.5f, 0.5f, 2.5f };
 		flatVase.transform.scale = glm::vec3{ 3.f };
         m_GameObjects.push_back(std::move(flatVase));
 
 		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\smoothVase.obj");
-		auto smoothVase = GameObject::CreateGameObject();
+		auto smoothVase{ GameObject::CreateGameObject() };
 		smoothVase.mesh = mesh;
 		smoothVase.transform.translation = { 0.5f, 0.5f, 2.5f };
 		smoothVase.transform.scale = glm::vec3{ 3.f };

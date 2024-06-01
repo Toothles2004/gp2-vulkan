@@ -46,7 +46,8 @@ namespace lve
 		void Draw(VkCommandBuffer commandBuffer);
 
 		static std::unique_ptr<Mesh> CreateModelFromFile(Device& device, const std::string& filePath);
-		static std::unique_ptr<Mesh> GenerateTerrain(Device& device, int rows, int columns, float height, float width);
+		static std::pair<Device&, Data> GeneratePerlinNoiseMap(Device& device, int rows, int columns, float height, float width, float frequency);
+		static std::unique_ptr<Mesh> CreateTerrain(Device& device, int rows, int columns, Data previousData);
 
 		Mesh(const Mesh&) = delete;
 		Mesh(Mesh&&) = delete;
@@ -62,7 +63,7 @@ namespace lve
 		uint32_t m_VertexCount;
 
 		bool m_HasIndexBuffer = false;
-		std::unique_ptr<Buffer> m_IndexBuffer;
+		std::unique_ptr<Buffer> m_pIndexBuffer;
 		uint32_t m_IndexCount;
 	};
 }

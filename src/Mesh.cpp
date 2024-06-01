@@ -6,6 +6,7 @@
 #include <TinyObjLoader.h>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
+#include "3rdParty/FastNoiseLite.h"
 
 //std
 #include <cassert>
@@ -153,7 +154,7 @@ namespace lve
 
 		if(m_HasIndexBuffer)
 		{
-			vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+			vkCmdBindIndexBuffer(commandBuffer, m_pIndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		}
 	}
 
@@ -177,32 +178,99 @@ namespace lve
 		return std::make_unique<Mesh>(device, data);
 	}
 
-	std::unique_ptr<Mesh> Mesh::GenerateTerrain(Device& device, int rows, int columns, float height, float width)
+	std::pair<Device&, Mesh::Data> Mesh::GeneratePerlinNoiseMap(Device& device, int rows, int columns, float height, float width, float frequency)
 	{
 		Data data{};
-		
+		FastNoiseLite noise( rand());
+		noise.SetFrequency(frequency);
+		noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);
+		noise.SetRotationType3D(FastNoiseLite::RotationType3D_None);
+		noise.SetFractalType(FastNoiseLite::FractalType_None);
+		noise.SetFractalOctaves(3);
+		noise.SetFractalGain(0.4f);
+		noise.SetFractalWeightedStrength(0.f);
+
+		std::vector<float> noiseData(10);
+		int index = 0;
+
 		// Generate vertices
 		for (int y{}; y < rows; ++y)
 		{
 			for (int x{}; x < columns; ++x)
 			{
 				Vertex vertex{};
-				
-				if (y > 5 && y < 8)
-				{
-					vertex.position = { static_cast<float>(x) * width / rows, -1.0f, static_cast<float>(y) * height / columns };
-					vertex.color = { 1.0f, 1.0f, 0.0f };
-					vertex.normal = { 0.0f, -1.0f, 0.0f };
-					vertex.uv = { static_cast<float>(x) * width / rows / (columns - 1), static_cast<float>(y) * height / columns / (rows - 1) };
-				}
-				else
-				{
-					vertex.position = { static_cast<float>(x) * width / rows, 0.0f, static_cast<float>(y) * height / columns };
-					vertex.color = { 1.0f, 1.0f, 0.0f };
-					vertex.normal = { 0.0f, -1.0f, 0.0f };
-					vertex.uv = { static_cast<float>(x) * width / rows / (columns - 1), static_cast<float>(y) * height / columns / (rows - 1) };
-				}
-				
+
+				vertex.position = { static_cast<float>(x) * width / rows, 0.0f, static_cast<float>(y) * height / columns };
+				vertex.color = { 1.0f, 1.0f, 1.0f };
+				vertex.normal = { 0.0f, -1.0f, 0.0f };
+				vertex.uv = { static_cast<float>(x) * width / rows / (columns - 1), static_cast<float>(y) * height / columns / (rows - 1) };
+
+				noiseData[index++] =
+					(
+						1 * noise.GetNoise(static_cast<float>(x), static_cast<float>(y))
+						+ 0.5f * noise.GetNoise(static_cast<float>(x)*2, static_cast<float>(y)*2)
+						+ 0.25f * noise.GetNoise(static_cast<float>(x)*4, static_cast<float>(y)*4)
+						);
+
+				float randomColor = noiseData[index-1] / (1.f + 0.5f + 0.25f);
+				vertex.color.r = randomColor;
+				vertex.color.g = randomColor;
+				vertex.color.b = randomColor;
+
+				data.vertices.push_back(vertex);
+				index = 0;
+			}
+		}
+
+		// Generate indices
+		for (int y{}; y < rows - 1; ++y)
+		{
+			for (int x{}; x < columns - 1; ++x)
+			{
+				const int topLeft = y * columns + x;
+				const int topRight = topLeft + 1;
+				const int bottomLeft = (y + 1) * columns + x;
+				const int bottomRight = bottomLeft + 1;
+
+				// Calculate normal for this face
+				glm::vec3 edge1 = data.vertices[topRight].position - data.vertices[topLeft].position;
+				glm::vec3 edge2 = data.vertices[bottomLeft].position - data.vertices[topLeft].position;
+				glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+
+				// Assign normal to all vertices of this face
+				data.vertices[topLeft].normal = normal;
+				data.vertices[topRight].normal = normal;
+				data.vertices[bottomLeft].normal = normal;
+				data.vertices[bottomRight].normal = normal;
+
+				data.indices.push_back(topLeft);
+				data.indices.push_back(bottomLeft);
+				data.indices.push_back(topRight);
+
+				data.indices.push_back(topRight);
+				data.indices.push_back(bottomLeft);
+				data.indices.push_back(bottomRight);
+			}
+		}
+		return std::pair<Device&, Mesh::Data>{device, data};
+	}
+
+	std::unique_ptr<Mesh> Mesh::CreateTerrain(Device& device, int rows, int columns, Data previousData)
+	{
+		Data data{};
+		for (int y{}; y < rows; ++y)
+		{
+			for (int x{}; x < columns; ++x)
+			{
+				Vertex vertex{};
+				float height = (previousData.vertices[y * columns + x].color.r + previousData.vertices[y * columns + x].color.g + previousData.vertices[y * columns + x].color.b) / 3;
+
+				vertex.position = previousData.vertices[y * columns + x].position;
+				vertex.position.y = height;
+				vertex.color = { 0.4f, 0.3f, 0.2f };
+				vertex.normal = previousData.vertices[y * columns + x].normal;
+				vertex.uv = previousData.vertices[y * columns + x].uv;
+
 				data.vertices.push_back(vertex);
 			}
 		}
@@ -237,7 +305,7 @@ namespace lve
 				data.indices.push_back(bottomRight);
 			}
 		}
-	
+
 		return std::make_unique<Mesh>(device, data);
 	}
 
@@ -297,7 +365,7 @@ namespace lve
 		stagingBuffer.Map();
 		stagingBuffer.WriteToBuffer((void*)indices.data());
 
-		m_IndexBuffer = std::make_unique<Buffer>
+		m_pIndexBuffer = std::make_unique<Buffer>
 			(
 			m_Device,
 			indexSize,
@@ -306,6 +374,6 @@ namespace lve
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_Device.CopyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
+		m_Device.CopyBuffer(stagingBuffer.GetBuffer(), m_pIndexBuffer->GetBuffer(), bufferSize);
 	}
 }
