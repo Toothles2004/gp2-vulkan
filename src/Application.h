@@ -28,6 +28,7 @@ namespace lve
 
 	private:
 		void LoadGameObjects();
+		void RandomizeTerrain();
 
 		Window m_Window{ m_WIDTH, m_HEIGHT, "Hello Vulkan!" };
 		Device m_Device{ m_Window };

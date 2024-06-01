@@ -7,16 +7,11 @@
 // std
 #include <stdexcept>
 #include <chrono>
-#include <array>
-#include <cassert>
-#include <numeric>
 
 //library
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <map>
 #include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
 #include "RenderSystem2D.h"
 
@@ -63,7 +58,7 @@ namespace lve
         camera.SetViewTarget(glm::vec3(1.0f, 3.0f, 0.0f), glm::vec3(0.f, 0.f, 2.5f));
 
         auto viewerObject = GameObject::CreateGameObject();
-        KeyboardInput cameraController{};
+        KeyboardInput inputManager{};
 		/*void* pUser = glfwGetWindowUserPointer(m_Window.GetGLFWwindow());
 		KeyboardInput* cameraController = static_cast<KeyboardInput*>(pUser);*/
 
@@ -72,13 +67,19 @@ namespace lve
 		while(!m_Window.ShouldClose())
 		{
 			glfwPollEvents();
+			if(inputManager.ShouldRandomize())
+			{
+				vkDeviceWaitIdle(m_Device.GetDevice());
+				RandomizeTerrain();
+				inputManager.ShouldRandomizeFalse();
+			}
 
             auto newTime = std::chrono::high_resolution_clock::now();
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
             //cameraController.MoveInPlaneXYZ(m_Window.GetGLFWwindow(), frameTime, viewerObject);
-			cameraController.Update(viewerObject, frameTime);
+			inputManager.Update(viewerObject, frameTime);
             camera.SetViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = m_Renderer.GetAspectRatio();
@@ -120,21 +121,7 @@ namespace lve
 		int columns{ 128 };
 		float height{ 10 };
 		float width{ 10 };
-		
-		std::pair<Device&, Mesh::Data> temp = Mesh::GeneratePerlinNoiseMap(m_Device, rows, columns, height, width, 0.08f);
-		std::shared_ptr<Mesh> perlinMap = std::make_unique<Mesh>(temp.first, temp.second);
-		auto perlinNoise{ GameObject::CreateGameObject() };
-		perlinNoise.mesh = perlinMap;
-		perlinNoise.transform.translation = { -15.f, 5.0f, 10.0f };
-		perlinNoise.transform.scale = glm::vec3{ 1.f };
-		m_GameObjects.push_back(std::move(perlinNoise));
-
-		std::shared_ptr<Mesh> mountainTerrain = Mesh::CreateTerrain(m_Device, rows, columns, temp.second);
-		auto terrain { GameObject::CreateGameObject() };
-		terrain.mesh = mountainTerrain;
-		terrain.transform.translation = { -5.f, 5.0f, 10.0f };
-		terrain.transform.scale = glm::vec3{ 1.f };
-		m_GameObjects.push_back(std::move(terrain));
+		float frequency{ 0.08f };
 
 		std::shared_ptr<Mesh> mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\flatVase.obj");
 		auto flatVase{ GameObject::CreateGameObject() };
@@ -150,6 +137,21 @@ namespace lve
 		smoothVase.transform.scale = glm::vec3{ 3.f };
 		m_GameObjects.push_back(std::move(smoothVase));
 
+		std::pair<Device&, Mesh::Data> temp = Mesh::GeneratePerlinNoiseMap(m_Device, rows, columns, height, width, frequency);
+		std::shared_ptr<Mesh> perlinMap = std::make_unique<Mesh>(temp.first, temp.second);
+		auto perlinNoise{ GameObject::CreateGameObject() };
+		perlinNoise.mesh = perlinMap;
+		perlinNoise.transform.translation = { -15.f, 5.0f, 10.0f };
+		perlinNoise.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(perlinNoise));
+
+		std::shared_ptr<Mesh> mountainTerrain = Mesh::CreateTerrain(m_Device, rows, columns, temp.second);
+		auto terrain{ GameObject::CreateGameObject() };
+		terrain.mesh = mountainTerrain;
+		terrain.transform.translation = { -5.f, 5.0f, 10.0f };
+		terrain.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(terrain));
+
 		mesh = Mesh::CreateModelFromFile(m_Device, "\\Models\\smoothVase.obj");
 		GameObject gameObject{ GameObject::CreateGameObject() };
 		gameObject.mesh = mesh;
@@ -163,5 +165,32 @@ namespace lve
 		cube.transform.translation = { -0.7f, 0.5f, 0.2f };
 		cube.transform.scale = { 0.2f, 0.2f, 0.2f };
 		m_GameObjects2D.push_back(std::move(cube));
+	}
+
+	void Application::RandomizeTerrain()
+	{
+		int rows{ 128 };
+		int columns{ 128 };
+		float height{ 10 };
+		float width{ 10 };
+		float frequency{ 0.05f };
+
+		m_GameObjects.pop_back();
+		m_GameObjects.pop_back();
+
+		std::pair<Device&, Mesh::Data> temp = Mesh::GeneratePerlinNoiseMap(m_Device, rows, columns, height, width, frequency);
+		std::shared_ptr<Mesh> perlinMap = std::make_unique<Mesh>(temp.first, temp.second);
+		auto perlinNoise{ GameObject::CreateGameObject() };
+		perlinNoise.mesh = perlinMap;
+		perlinNoise.transform.translation = { -15.f, 5.0f, 10.0f };
+		perlinNoise.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(perlinNoise));
+
+		std::shared_ptr<Mesh> mountainTerrain = Mesh::CreateTerrain(m_Device, rows, columns, temp.second);
+		auto terrain{ GameObject::CreateGameObject() };
+		terrain.mesh = mountainTerrain;
+		terrain.transform.translation = { -5.f, 5.0f, 10.0f };
+		terrain.transform.scale = glm::vec3{ 1.f };
+		m_GameObjects.push_back(std::move(terrain));
 	}
 }

@@ -12,6 +12,8 @@ namespace lve
 		void MouseMove(GLFWwindow* window, double xpos, double ypos);
 		void MouseEvent(GLFWwindow* window, int button, int action, int mods);
 		void Update(GameObject& gameObject, float deltaTime);
+		bool ShouldRandomize() { return m_bRandomizeTerrain; }
+		void ShouldRandomizeFalse() { m_bRandomizeTerrain = false; }
 
 	private:
 		static inline glm::vec2 m_DragStart{0,0};
@@ -21,6 +23,7 @@ namespace lve
 		static inline const float m_LookSpeed{ 1.f };
 		static inline float m_Yaw{ 0.f };
 		static inline float m_Pitch{ 0.f };
+		static inline bool m_bRandomizeTerrain{};
 	};
 }
 

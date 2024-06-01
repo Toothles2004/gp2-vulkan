@@ -181,6 +181,7 @@ namespace lve
 	std::pair<Device&, Mesh::Data> Mesh::GeneratePerlinNoiseMap(Device& device, int rows, int columns, float height, float width, float frequency)
 	{
 		Data data{};
+		srand(static_cast<uint32_t>(time(NULL)));
 		FastNoiseLite noise( rand());
 		noise.SetFrequency(frequency);
 		noise.SetNoiseType(FastNoiseLite::NoiseType_Perlin);

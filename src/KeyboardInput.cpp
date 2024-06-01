@@ -30,6 +30,10 @@ namespace lve
         {
             m_MoveDir += rightDir;
         }
+        if(key == GLFW_KEY_E && action == GLFW_RELEASE)
+        {
+            m_bRandomizeTerrain = true;
+        }
     }
 
     void KeyboardInput::MouseMove(GLFWwindow* window, double xpos, double ypos)
